@@ -41,3 +41,32 @@ struct FineGrainedHeuristic:
         Serving time is the sum of transmission and processing time.
         """
         return transmission_time + processing_time
+
+struct CoarseGrainedHeuristic:
+    """
+    Implements the Coarse-Grained Heuristic for ARARAT.
+    Provides a greedy, sub-optimal baseline for service placement.
+    """
+    fn __init__(inout self):
+        pass
+
+    fn allocate_service(
+        self, 
+        nodes: List[Node], 
+        service: Service
+    ) -> Int:
+        """
+        Selects the node with the absolute highest available CPU capacity.
+        Ignores network distance and link costs.
+        """
+        var best_node_id: Int = -1
+        var max_cpu: Float64 = -1.0
+        
+        for i in range(len(nodes)):
+            let node = nodes[i]
+            if node.node_type == "EDGE" and node.available_cpu >= service.cpu_required:
+                if node.available_cpu > max_cpu:
+                    max_cpu = node.available_cpu
+                    best_node_id = node.id
+        
+        return best_node_id
