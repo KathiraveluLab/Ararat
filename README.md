@@ -111,7 +111,7 @@ Ararat is managed using **Pixi**. This ensures all dependencies, including the M
 - **Docker / Apptainer**: (Optional) For orchestrating containerized services.
 
 ### Running a Simulation
-Ararat includes a research-grade case study of a **Neuromodulation Control Loop**:
+Ararat includes a case study of a **Neuromodulation Control Loop**:
 
 ```bash
 # Run the complete verification suite using Pixi
