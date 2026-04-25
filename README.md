@@ -9,6 +9,36 @@
 
 ## Core Philosophy
 
+```mermaid
+graph TD
+    classDef control fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+    classDef data fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    
+    subgraph Control_Plane ["Control Plane"]
+        API["Northbound API<br>(Dynamic Hot-Swapping)"]
+        Orchestrator["Ararat Orchestrator<br>(Logically Centralized)"]
+        API -.-> Orchestrator
+    end
+
+    subgraph Data_Plane ["Data Plane (Service Agents)"]
+        Sensing["Sensing Node"]
+        Controller["Controller Node (CTL)"]
+        Stimulator["Stimulator Node"]
+        Logger[/"Data Logger"\]
+    end
+
+    Orchestrator -.->|"TRIGGER_EXECUTION"<br>Control Signals| Sensing
+    Orchestrator -.->|Control Signals| Controller
+    
+    Sensing == "Sync DHG edge" ==> Controller
+    Sensing -. "Async (Thin Edge)" .-> Logger
+    Controller == "Sync DHG edge" ==> Stimulator
+    Stimulator == "Feedback Loop" ==> Sensing
+
+    class API,Orchestrator control;
+    class Sensing,Controller,Stimulator,Logger data;
+```
+
 Ararat is inspired by **Software-Defined Networking (SDN)**, separating the **Control Plane** (Orchestration) from the **Data Plane** (Service Execution). This allows for:
 
 -   **Directed Hypergraphs (DHG)**: Moving beyond the constraints of DAGs to support cycles, feedback loops, and 1-to-many hyperedges.
