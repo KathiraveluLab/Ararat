@@ -1,4 +1,4 @@
-from python import Python
+from std.python import Python
 
 struct ServiceLauncher:
     """
@@ -7,14 +7,14 @@ struct ServiceLauncher:
     As specified in NEXUS Section I.E: 'supports services running across multiple execution environments'.
     """
     
-    fn __init__(inout self):
+    def __init__(out self):
         pass
 
-    fn launch_container(self, platform: String, image: String, params: String) raises:
+    def launch_container(mut self, platform: String, image: String, params: String) raises:
         """
         Launches a containerized service using the specified platform (docker/singularity).
         """
-        let subprocess = Python.import_module("subprocess")
+        var subprocess = Python.import_module("subprocess")
         print("   [Launcher] Initializing " + platform + " instance: " + image)
         
         var cmd: String = ""
@@ -33,10 +33,10 @@ struct ServiceLauncher:
         except:
             print("   [Launcher] ERROR: Service execution failed for " + image)
 
-    fn exec_shell_script(self, script_path: String) raises:
+    def exec_shell_script(mut self, script_path: String) raises:
         """
         Executes a standalone research script (Algorithm 1: execScripts).
         """
-        let subprocess = Python.import_module("subprocess")
+        var subprocess = Python.import_module("subprocess")
         print("   [Launcher] Executing Script: " + script_path)
         subprocess.run(script_path, shell=True, check=True)

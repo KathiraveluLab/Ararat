@@ -1,6 +1,6 @@
-from ..core.node import Node
-from ..core.link import Link
-from collections import List
+from ararat.core.node import Node
+from ararat.core.link import Link
+from std.collections import List
 
 struct ETT2018Topology:
     """
@@ -10,15 +10,15 @@ struct ETT2018Topology:
     var nodes: List[Node]
     var links: List[Link]
     
-    fn __init__(inout self):
+    def __init__(out self):
         self.nodes = List[Node]()
         self.links = List[Link]()
         self.initialize_nodes()
         self.initialize_links()
         
-    fn initialize_nodes(inout self):
+    def initialize_nodes(mut self):
         # 12 major European cities (Node IDs: 0 to 11)
-        let cities = List[String](
+        var cities = List[String](
             "London", "Paris", "Amsterdam", "Berlin", "Vienna", 
             "Warsaw", "Prague", "Zurich", "Milan", "Madrid", 
             "Rome", "Frankfurt"
@@ -27,10 +27,10 @@ struct ETT2018Topology:
             # Initializing with standard edge resource capacities
             self.nodes.append(Node(i, cities[i], 100.0, 1024.0)) # 100 CPU units, 1GB RAM
             
-    fn initialize_links(inout self):
+    def initialize_links(mut self):
         # Default research parameters for ETT
-        let bw = 10000.0 # 10,000 Mbps (10 Gbps) bandwidth
-        let lat = 10.0   # 10.0 ms average latency
+        var bw = 10000.0 # 10,000 Mbps (10 Gbps) bandwidth
+        var lat = 10.0   # 10.0 ms average latency
         
         # Defining 18 primary links (IDs correspond to cities list)
         self.add_link(0, 1, bw, lat)  # London-Paris
@@ -52,12 +52,12 @@ struct ETT2018Topology:
         self.add_link(9, 0, bw, lat)  # Madrid-London
         self.add_link(10, 11, bw, lat)# Rome-Frankfurt
 
-    fn add_link(inout self, src: Int, dest: Int, bw: Float64, lat: Float64):
+    def add_link(mut self, src: Int, dest: Int, bw: Float64, lat: Float64):
         # Each 'link' in the topology is bi-directional
         self.links.append(Link(src, dest, bw, lat))
         self.links.append(Link(dest, src, bw, lat))
 
-    fn display_status(self):
+    def display_status(mut self):
         print("ETT 2018 Topology Summary:")
         print(" - Nodes Loaded: ", len(self.nodes))
         print(" - Active Bi-directional Links: ", len(self.links))

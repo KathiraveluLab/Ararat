@@ -1,10 +1,10 @@
-from ..core.workflow_node import WorkflowNode
-from ..core.hyperedge import Hyperedge
-from ..controller.sdn import AraratOrchestrator
-from ..infra.parser import WorkflowParser
-from collections import List
+from ararat.core.workflow_node import WorkflowNode
+from ararat.core.hyperedge import Hyperedge
+from ararat.controller.sdn import AraratOrchestrator
+from ararat.infra.parser import WorkflowParser
+from std.collections import List
 
-fn run_neuromodulation_sim():
+def run_neuromodulation_sim():
     """
     Executes the Neuromodulation Control System simulation from Ararat.pdf.
     Features a closed-loop interaction between a Plant Model (PM) and a Controller (CTL)
@@ -22,8 +22,8 @@ fn run_neuromodulation_sim():
     ctl_node.update_context("stimulation_amplitude", 1.0)  # mA
     
     var nodes = List[WorkflowNode]()
-    nodes.append(pm_node)
-    nodes.append(ctl_node)
+    nodes.append(pm_node^)
+    nodes.append(ctl_node^)
     
     # 2. Directed Hypergraph Definition (Equation 2: W = A -> B -> ... )
     # In this closed-loop, PM sends data to CTL, and CTL provides feedback to PM.
@@ -31,16 +31,16 @@ fn run_neuromodulation_sim():
     # Hyperedge 1: PM -> {CTL} (Synchronous)
     var e1_dests = List[Int]()
     e1_dests.append(1)
-    let e1 = Hyperedge(1, "NEURAL_RECORDING", 0, e1_dests, True)
+    var e1 = Hyperedge(1, "NEURAL_RECORDING", 0, e1_dests, True)
     
     # Hyperedge 2: CTL -> {PM} (Synchronous Feedback Loop)
     var e2_dests = List[Int]()
     e2_dests.append(0)
-    let e2 = Hyperedge(2, "STIMULATION_PARAMS", 1, e2_dests, True)
+    var e2 = Hyperedge(2, "STIMULATION_PARAMS", 1, e2_dests, True)
     
     var edges = List[Hyperedge]()
-    edges.append(e1)
-    edges.append(e2)
+    edges.append(e1^)
+    edges.append(e2^)
     
     # 3. SDW Orchestration Initialization
     orchestrator.initialize_workflow(nodes, edges)
@@ -48,7 +48,7 @@ fn run_neuromodulation_sim():
     # 4. Simulation Execution: 20 Iterations (Standard evaluation size in paper)
     orchestrator.run_simulation(20)
 
-fn run_json_driven_sim() raises:
+def run_json_driven_sim() raises:
     """
     Demonstrates full parity by loading a DHG from a JSON definition
     and orchestrating it via the Ararat Control Plane.
@@ -57,14 +57,14 @@ fn run_json_driven_sim() raises:
     var parser = WorkflowParser()
     var orchestrator = AraratOrchestrator()
     
-    let workflow_data = parser.load_from_json("workflows/neuromodulation.json")
-    let nodes = workflow_data.0
-    let edges = workflow_data.1
+    var workflow_data = parser.load_from_json("workflows/neuromodulation.json")
+    var nodes = workflow_data.0
+    var edges = workflow_data.1
     
     orchestrator.initialize_workflow(nodes, edges)
     orchestrator.run_simulation(5)
 
-fn run_hot_swap_sim() raises:
+def run_hot_swap_sim() raises:
     """
     Demonstrates 100% research parity by performing a mid-run topology update.
     Implements Section II.A: 'hot deployment of workflow definitions'.
@@ -77,20 +77,20 @@ fn run_hot_swap_sim() raises:
     var orchestrator = AraratOrchestrator()
     
     # 1. Initial Load (Synchronous DHG)
-    let initial_data = parser.load_from_json("workflows/neuromodulation.json")
+    var initial_data = parser.load_from_json("workflows/neuromodulation.json")
     orchestrator.initialize_workflow(initial_data.0, initial_data.1)
     
     print("\n>> Phase 1: Standard Synchronous Control Flow")
     orchestrator.orchestrate_pass()
     
     # 2. Hot-Swap Event (Injected via Control Plane)
-    let new_edges = parser.load_edges_from_json("workflows/dynamic_update.json")
+    var new_edges = parser.load_edges_from_json("workflows/dynamic_update.json")
     orchestrator.update_topology(new_edges)
     
     print("\n>> Phase 2: Post-Update Control Flow (Asynchronous Signaling)")
     orchestrator.orchestrate_pass()
 
-fn main() raises:
+def main() raises:
     run_neuromodulation_sim()
     run_json_driven_sim()
     run_hot_swap_sim()

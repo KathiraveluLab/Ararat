@@ -27,3 +27,7 @@ _bmad
 .vscode
 _paper
 .agent
+
+# pixi environments
+.pixi/*
+!.pixi/config.toml

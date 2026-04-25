@@ -1,7 +1,7 @@
-from ..core.workflow_node import WorkflowNode
-from ..core.hyperedge import Hyperedge
-from ..infra.launcher import ServiceLauncher
-from collections import List, Dict
+from std.collections import List, Dict
+from ararat.core.workflow_node import WorkflowNode
+from ararat.core.hyperedge import Hyperedge
+from ararat.infra.launcher import ServiceLauncher
 
 struct AraratOrchestrator:
     """
@@ -12,42 +12,42 @@ struct AraratOrchestrator:
     var hyperedges: List[Hyperedge]
     var launcher: ServiceLauncher
     
-    fn __init__(inout self):
+    def __init__(out self):
         self.nodes = List[WorkflowNode]()
         self.hyperedges = List[Hyperedge]()
         self.launcher = ServiceLauncher()
         
-    fn initialize_workflow(inout self, nodes: List[WorkflowNode], edges: List[Hyperedge]):
+    def initialize_workflow(mut self, nodes: List[WorkflowNode], edges: List[Hyperedge]):
         """
         Algorithm 1: Parse and set the workflow representation.
         Initializes the control plane state for all service nodes.
         """
         print("[Orchestrator] Initializing Ararat Workflow...")
-        self.nodes = nodes
-        self.hyperedges = edges
+        self.nodes = nodes.copy()
+        self.hyperedges = edges.copy()
         
         # Algorithm 1: serviceInit for all nodes
         for i in range(len(self.nodes)):
-            print("   -> Initializing Service Agent at Node " + str(self.nodes[i].id) + ": " + self.nodes[i].name)
+            print("   -> Initializing Service Agent at Node " + String(self.nodes[i].id) + ": " + self.nodes[i].name)
 
-    fn emit_control_event(self, node_id: Int, event: String):
+    def emit_control_event(mut self, node_id: Int, event: String):
         """
         Emulates the RESTful control events sent via the Northbound interface.
         Decouples control from the data-plane execution.
         """
-        print("   [Control Event] Node " + str(node_id) + " :: " + event)
+        print("   [Control Event] Node " + String(node_id) + " :: " + event)
 
-    fn update_topology(inout self, new_edges: List[Hyperedge]):
+    def update_topology(mut self, new_edges: List[Hyperedge]):
         """
         Section II.A: 'hot deployment of workflow definitions by managing and propagating the control'.
         Allows the Orchestrator to re-route data flows without process restart.
         """
         print("\n[Control Plane] !!! HOT-SWAPPING WORKFLOW TOPOLOGY !!!")
-        self.hyperedges = new_edges
+        self.hyperedges = new_edges.copy()
         for i in range(len(self.hyperedges)):
             print("   -> New Path Active: " + self.hyperedges[i].label)
 
-    fn run_simulation(inout self, iterations: Int):
+    def run_simulation(mut self, iterations: Int):
         """
         Executes the closed-loop workflow for N iterations as defined in Equation 2.
         """
@@ -58,7 +58,7 @@ struct AraratOrchestrator:
         print("Loops: Cycles supported via iterative orchestration")
         
         for i in range(iterations):
-            print("\n--- [Global Iteration " + str(i + 1) + "] ---")
+            print("\n--- [Global Iteration " + String(i + 1) + "] ---")
             
             # Hot-Swap Simulation: at iteration 3, we update the topology
             if i == 2:
@@ -71,31 +71,31 @@ struct AraratOrchestrator:
         print(" WORKFLOW COMPLETED SUCCESSFULLY")
         print("="*40)
 
-    fn orchestrate_pass(inout self):
+    def orchestrate_pass(mut self):
         """
         Orchestrates Algorithm 2: Service Executions across the DHG.
         Supports both Synchronous (Blocking) and Asynchronous (Thin) hyperedges.
         """
         for i in range(len(self.nodes)):
-            var node = self.nodes[i]
+            var node = self.nodes[i].copy()
             
             # 1. Trigger service via control plane
             self.emit_control_event(node.id, "TRIGGER_EXECUTION")
             
             # 2. Invoke Data Plane Service
-            let dummy_input = Dict[String, Float64]()
-            let output = node.process(dummy_input)
+            var dummy_input = Dict[String, Float64]()
+            var output = node.process(dummy_input)
             
             # 3. Propagate output through Hyperedges (Respecting Synchronicity)
             self._propagate_data(node.id, output)
 
-    fn _propagate_data(self, source_id: Int, data: Dict[String, Float64]):
+    def _propagate_data(mut self, source_id: Int, data: Dict[String, Float64]):
         """
         Finds all hyperedges where source_id is the origin and signals destinations.
         Implements Section III.A Synchronous/Asynchronous variants.
         """
         for i in range(len(self.hyperedges)):
-            let edge = self.hyperedges[i]
+            var edge = self.hyperedges[i].copy()
             if edge.source_id == source_id:
                 if edge.is_blocking:
                     print("   [Sync Signal] Blocking until ACK from destinations of " + edge.label)

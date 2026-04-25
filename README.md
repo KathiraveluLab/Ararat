@@ -55,17 +55,37 @@ Ararat/
 
 ## Getting Started
 
-### Prerequisites
--   [Mojo SDK](https://docs.modular.com/mojo/manual/get-started/)
--   Python 3.x (for JSON parsing and subprocess management)
--   Docker (Optional, for containerized services)
+### Installation & Setup
+
+Ararat is managed using **Pixi**. This ensures all dependencies, including the Mojo SDK, are correctly versioned and isolated.
+
+1.  **Install Pixi**:
+    ```bash
+    curl -fsSL https://pixi.sh/install.sh | bash
+    ```
+    *Restart your terminal or run `source ~/.bashrc` after installation.*
+
+2.  **Install Dependencies**:
+    Navigate to the project root and run the following to install Mojo and other dependencies:
+    ```bash
+    pixi install
+    ```
+
+3.  **Verify the Installation**:
+    ```bash
+    pixi run mojo --version
+    ```
+
+### Other Prerequisites
+- **Python 3.x**: For JSON interoperability and orchestrator subprocess management.
+- **Docker / Apptainer**: (Optional) For orchestrating containerized services.
 
 ### Running a Simulation
 Ararat includes a research-grade case study of a **Neuromodulation Control Loop**:
 
 ```bash
-# Run the complete verification suite
-mojo run main.mojo
+# Run the complete verification suite using Pixi
+pixi run mojo main.mojo
 ```
 
 ---

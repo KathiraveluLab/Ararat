@@ -1,6 +1,5 @@
-from collections import Optional
+from std.collections import Optional
 
-@value
 struct Node:
     var id: Int
     var node_type: String # "SDN", "EDGE", "CLIENT"
@@ -9,7 +8,7 @@ struct Node:
     var available_cpu: Float64
     var available_memory: Float64
     
-    fn __init__(inout self, id: Int, node_type: String, cpu: Float64, memory: Float64):
+    def __init__(out self, id: Int, node_type: String, cpu: Float64, memory: Float64):
         self.id = id
         self.node_type = node_type
         self.cpu_capacity = cpu
@@ -17,5 +16,5 @@ struct Node:
         self.available_cpu = cpu
         self.available_memory = memory
 
-    fn display(self):
+    def display(mut self):
         print("Node ID:", self.id, "Type:", self.node_type, "CPU Capacity:", self.cpu_capacity, "Available CPU:", self.available_cpu)
