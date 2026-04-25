@@ -63,7 +63,7 @@ Built-in `ServiceLauncher` capable of orchestrating:
 -   **Local**: Standalone Mojo/Python scripts.
 
 ### Dynamic Hot-Swapping
-The Orchestrator can ingest new JSON definitions during an active run, re-routing hyperedges and altering the control logic with zero downtime.
+The Orchestrator can ingest new YAML definitions during an active run, re-routing hyperedges and altering the control logic with zero downtime.
 
 ---
 
@@ -74,10 +74,10 @@ Ararat/
 ├── ararat/
 │   ├── core/           # DHG Primitives (Nodes, Hyperedges)
 │   ├── controller/     # Logically Centralized Orchestrator
-│   ├── infra/          # Container Launchers & JSON Parsers
+│   ├── infra/          # Container Launchers & YAML Parsers
 │   ├── sim/            # Closed-loop case studies & benchmarks
 │   └── optimization/   # Resource & Bandwidth allocation heuristics
-├── workflows/          # JSON-based DHG definitions
+├── workflows/          # YAML-based DHG definitions
 └── main.mojo           # Entry point
 ```
 
@@ -107,7 +107,7 @@ Ararat is managed using **Pixi**. This ensures all dependencies, including the M
     ```
 
 ### Other Prerequisites
-- **Python 3.x**: For JSON interoperability and orchestrator subprocess management.
+- **Python 3.x**: For YAML interoperability and orchestrator subprocess management.
 - **Docker / Apptainer**: (Optional) For orchestrating containerized services.
 
 ### Running a Simulation
@@ -117,6 +117,12 @@ Ararat includes a case study of a **Neuromodulation Control Loop**:
 # Run the complete verification suite using Pixi
 pixi run mojo main.mojo
 ```
+
+### Creating Custom Workflows
+
+Ararat inherently focuses on zero-code deployments via declarative topologies natively in **YAML**, while also exposing its raw Mojo primitives programmatically.
+
+For comprehensive instructions on how to design YAML schemas and inject hot-swaps using the native `WorkflowParser`, please refer to the **[Ararat User Guide](USER-GUIDE.md)**.
 
 ---
 

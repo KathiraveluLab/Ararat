@@ -9,3 +9,4 @@ version = "0.1.0"
 
 [dependencies]
 mojo = ">=1.0.0b1.dev2026042505,<2"
+pyyaml = ">=6.0.3,<7"

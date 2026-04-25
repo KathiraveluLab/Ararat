@@ -48,16 +48,16 @@ def run_neuromodulation_sim():
     # 4. Simulation Execution: 20 Iterations (Standard evaluation size in paper)
     orchestrator.run_simulation(20)
 
-def run_json_driven_sim() raises:
+def run_yaml_driven_sim() raises:
     """
-    Demonstrates full parity by loading a DHG from a JSON definition
+    Demonstrates full parity by loading a DHG from a YAML definition
     and orchestrating it via the Ararat Control Plane.
     """
-    print("\n[Simulator] Initializing JSON-driven Workflow...")
+    print("\n[Simulator] Initializing YAML-driven Workflow...")
     var parser = WorkflowParser()
     var orchestrator = AraratOrchestrator()
     
-    var workflow_data = parser.load_from_json("workflows/neuromodulation.json")
+    var workflow_data = parser.load_from_yaml("workflows/neuromodulation.yaml")
     var nodes = workflow_data.0
     var edges = workflow_data.1
     
@@ -77,14 +77,14 @@ def run_hot_swap_sim() raises:
     var orchestrator = AraratOrchestrator()
     
     # 1. Initial Load (Synchronous DHG)
-    var initial_data = parser.load_from_json("workflows/neuromodulation.json")
+    var initial_data = parser.load_from_yaml("workflows/neuromodulation.yaml")
     orchestrator.initialize_workflow(initial_data.0, initial_data.1)
     
     print("\n>> Phase 1: Standard Synchronous Control Flow")
     orchestrator.orchestrate_pass()
     
     # 2. Hot-Swap Event (Injected via Control Plane)
-    var new_edges = parser.load_edges_from_json("workflows/dynamic_update.json")
+    var new_edges = parser.load_edges_from_yaml("workflows/dynamic_update.yaml")
     orchestrator.update_topology(new_edges)
     
     print("\n>> Phase 2: Post-Update Control Flow (Asynchronous Signaling)")
@@ -92,5 +92,5 @@ def run_hot_swap_sim() raises:
 
 def main() raises:
     run_neuromodulation_sim()
-    run_json_driven_sim()
+    run_yaml_driven_sim()
     run_hot_swap_sim()
