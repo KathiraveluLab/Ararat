@@ -43,7 +43,7 @@ def run_neuromodulation_sim():
     edges.append(e2^)
     
     # 3. SDW Orchestration Initialization
-    orchestrator.initialize_workflow(nodes, edges)
+    orchestrator.initialize_workflow(nodes^, edges^)
     
     # 4. Simulation Execution: 20 Iterations (Standard evaluation size in paper)
     orchestrator.run_simulation(20)
@@ -57,11 +57,10 @@ def run_yaml_driven_sim() raises:
     var parser = WorkflowParser()
     var orchestrator = AraratOrchestrator()
     
-    var workflow_data = parser.load_from_yaml("workflows/neuromodulation.yaml")
-    var nodes = workflow_data.0
-    var edges = workflow_data.1
+    var nodes = parser.load_nodes_from_yaml("workflows/neuromodulation.yaml")
+    var edges = parser.load_edges_from_yaml("workflows/neuromodulation.yaml")
     
-    orchestrator.initialize_workflow(nodes, edges)
+    orchestrator.initialize_workflow(nodes^, edges^)
     orchestrator.run_simulation(5)
 
 def run_hot_swap_sim() raises:
@@ -77,15 +76,16 @@ def run_hot_swap_sim() raises:
     var orchestrator = AraratOrchestrator()
     
     # 1. Initial Load (Synchronous DHG)
-    var initial_data = parser.load_from_yaml("workflows/neuromodulation.yaml")
-    orchestrator.initialize_workflow(initial_data.0, initial_data.1)
+    var init_nodes = parser.load_nodes_from_yaml("workflows/neuromodulation.yaml")
+    var init_edges = parser.load_edges_from_yaml("workflows/neuromodulation.yaml")
+    orchestrator.initialize_workflow(init_nodes^, init_edges^)
     
     print("\n>> Phase 1: Standard Synchronous Control Flow")
     orchestrator.orchestrate_pass()
     
     # 2. Hot-Swap Event (Injected via Control Plane)
     var new_edges = parser.load_edges_from_yaml("workflows/dynamic_update.yaml")
-    orchestrator.update_topology(new_edges)
+    orchestrator.update_topology(new_edges^)
     
     print("\n>> Phase 2: Post-Update Control Flow (Asynchronous Signaling)")
     orchestrator.orchestrate_pass()

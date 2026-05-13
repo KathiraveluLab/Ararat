@@ -5,58 +5,40 @@ from std.collections import List
 
 struct WorkflowParser:
     """
-    Infrastructure Layer: Parsers visual or JSON workflow definitions into the DHG structure.
+    Infrastructure Layer: Parses visual or JSON workflow definitions into the DHG structure.
     Implements Algorithm 1: parse(workflow) -> wfRepresentation.
     """
     
     def __init__(out self):
         pass
 
-    def load_from_yaml(mut self, yaml_path: String) raises -> (List[WorkflowNode], List[Hyperedge]):
+    def load_nodes_from_yaml(mut self, yaml_path: String) raises -> List[WorkflowNode]:
         """
-        Loads a Software-Defined Workflow definition from a YAML file.
-        Uses Python interoperability for mature YAML parsing.
+        Loads only the node definitions from a YAML workflow file.
+        Separated from load_edges_from_yaml to avoid Mojo Tuple return limitations.
         """
         var yaml = Python.import_module("yaml")
         var builtins = Python.import_module("builtins")
         
-        print("[Parser] Loading workflow definition: " + yaml_path)
+        print("[Parser] Loading nodes from: " + yaml_path)
         
-        # Open and load the workflow file
         var f = builtins.open(yaml_path, "r")
         var data = yaml.safe_load(f)
         f.close()
         
         var nodes = List[WorkflowNode]()
-        var edges = List[Hyperedge]()
-        
-        # 1. Parse Nodes
         var yaml_nodes = data["nodes"]
         for i in range(len(yaml_nodes)):
             var y_node = yaml_nodes[i]
-            var id = y_node["id"].to_float64().to_int()
-            var name = y_node["name"].to_string()
-            print("   -> Parsing Node " + String(id) + ": " + name)
+            var id: Int = atol(String(y_node["id"]))
+            var name    = String(y_node["name"])
+            var platform = String(y_node.get("platform", ""))
+            var image    = String(y_node.get("image", ""))
+            print("   -> Node " + String(id) + ": " + name +
+                  " [" + platform + "] " + image)
             nodes.append(WorkflowNode(id, name))
             
-        # 2. Parse Hyperedges (DHG)
-        var yaml_edges = data["edges"]
-        for i in range(len(yaml_edges)):
-            var y_edge = yaml_edges[i]
-            var id = y_edge["id"].to_float64().to_int()
-            var label = y_edge["label"].to_string()
-            var source = y_edge["source"].to_float64().to_int()
-            var sync = y_edge["is_blocking"].to_float64().to_int() == 1
-            
-            var dests = List[Int]()
-            var y_dests = y_edge["destinations"]
-            for j in range(len(y_dests)):
-                dests.append(y_dests[j].to_float64().to_int())
-                
-            print("   -> Parsing Hyperedge [" + label + "]: Node " + String(source) + " -> multiple")
-            edges.append(Hyperedge(id, label, source, dests, sync))
-            
-        return (nodes, edges)
+        return nodes^
 
     def load_edges_from_yaml(mut self, yaml_path: String) raises -> List[Hyperedge]:
         """
@@ -66,7 +48,7 @@ struct WorkflowParser:
         var yaml = Python.import_module("yaml")
         var builtins = Python.import_module("builtins")
         
-        print("[Parser] Loading incremental topology: " + yaml_path)
+        print("[Parser] Loading edges from: " + yaml_path)
         
         var f = builtins.open(yaml_path, "r")
         var data = yaml.safe_load(f)
@@ -75,17 +57,20 @@ struct WorkflowParser:
         var edges = List[Hyperedge]()
         var yaml_edges = data["edges"]
         for i in range(len(yaml_edges)):
-            var y_edge = yaml_edges[i]
-            var id = y_edge["id"].to_float64().to_int()
-            var label = y_edge["label"].to_string()
-            var source = y_edge["source"].to_float64().to_int()
-            var sync = y_edge["is_blocking"].to_float64().to_int() == 1
+            var y_edge  = yaml_edges[i]
+            var id: Int = atol(String(y_edge["id"]))
+            var label   = String(y_edge["label"])
+            var source: Int = atol(String(y_edge["source"]))
+            var blocking_int: Int = atol(String(y_edge["is_blocking"]))
+            var sync = blocking_int == 1
             
             var dests = List[Int]()
             var y_dests = y_edge["destinations"]
             for j in range(len(y_dests)):
-                dests.append(y_dests[j].to_float64().to_int())
+                var dest: Int = atol(String(y_dests[j]))
+                dests.append(dest)
                 
+            print("   -> Hyperedge [" + label + "]: " + String(source) + " -> destinations")
             edges.append(Hyperedge(id, label, source, dests, sync))
             
-        return edges
+        return edges^
