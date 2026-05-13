@@ -71,13 +71,19 @@ The Orchestrator can ingest new YAML definitions during an active run, re-routin
 
 ```text
 Ararat/
-├── ararat/
+├── src/
 │   ├── core/           # DHG Primitives (Nodes, Hyperedges)
 │   ├── controller/     # Logically Centralized Orchestrator
 │   ├── infra/          # Container Launchers & YAML Parsers
 │   ├── sim/            # Closed-loop case studies & benchmarks
 │   └── optimization/   # Resource & Bandwidth allocation heuristics
+├── scripts/
+│   ├── bayesian_optimizer.py        # Local Python node
+│   └── neuromod-pm/                 # Docker node
+│       ├── Dockerfile
+│       └── plant_model.sh
 ├── workflows/          # YAML-based DHG definitions
+├── setup.sh            # Idempotent environment setup
 └── main.mojo           # Entry point
 ```
 
@@ -87,28 +93,20 @@ Ararat/
 
 ### Installation & Setup
 
-Ararat is managed using **Pixi**. This ensures all dependencies, including the Mojo SDK, are correctly versioned and isolated.
+Ararat is managed using **Pixi**. Run the bundled setup script — it checks for
+existing installations and skips any step that is already satisfied:
 
-1.  **Install Pixi**:
-    ```bash
-    curl -fsSL https://pixi.sh/install.sh | bash
-    ```
-    *Restart your terminal or run `source ~/.bashrc` after installation.*
+```bash
+bash setup.sh
+```
 
-2.  **Install Dependencies**:
-    Navigate to the project root and run the following to install Mojo and other dependencies:
-    ```bash
-    pixi install
-    ```
+The script handles:
+- Installing **Pixi** (if not already on `PATH`)
+- Running `pixi install` to install Mojo and PyYAML (if not already solved)
+- Building the **Docker image** `kathiravelulab/neuromod-pm:latest` (if not already present)
+- Verifying the installation with `pixi run mojo --version`
 
-3.  **Verify the Installation**:
-    ```bash
-    pixi run mojo --version
-    ```
-
-### Other Prerequisites
-- **Python 3.x**: For YAML interoperability and orchestrator subprocess management.
-- **Docker / Apptainer**: (Optional) For orchestrating containerized services.
+> If you prefer to run steps manually, see [Tutorial.md](Tutorial.md#prerequisites).
 
 ### Running a Simulation
 Ararat includes a case study of a **Neuromodulation Control Loop**:

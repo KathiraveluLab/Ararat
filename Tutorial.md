@@ -8,19 +8,25 @@ images that back them.
 
 ## Prerequisites
 
-Install dependencies and activate the pixi environment:
+Run the bundled setup script from the project root. It is **idempotent** — it
+checks for existing installations and skips any step that is already satisfied:
 
 ```bash
-pixi install
+bash setup.sh
 ```
 
-Build the Docker image for the Plant Model node:
+The script takes care of:
 
-```bash
-docker build -t kathiravelulab/neuromod-pm:latest scripts/neuromod-pm/
-```
+| Step | What it checks |
+|---|---|
+| Install Pixi | `command -v pixi` |
+| `pixi install` (Mojo + PyYAML) | `pixi run mojo --version` |
+| Build Docker image `kathiravelulab/neuromod-pm:latest` | `docker image inspect` |
 
-Verify both prototype implementations exist:
+If you prefer to run the steps manually, see
+[README.md#installation--setup](README.md#installation--setup).
+
+Verify both prototype implementations exist after setup:
 
 ```bash
 ls scripts/
