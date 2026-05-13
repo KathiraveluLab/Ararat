@@ -1,6 +1,6 @@
 from std.python import Python
-from ararat.core.workflow_node import WorkflowNode
-from ararat.core.hyperedge import Hyperedge
+from src.core.workflow_node import WorkflowNode
+from src.core.hyperedge import Hyperedge
 from std.collections import List
 
 struct WorkflowParser:

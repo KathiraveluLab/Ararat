@@ -1,4 +1,4 @@
-from ararat.core.link import Link
+from src.core.link import Link
 from std.collections import List
 
 struct BandwidthAllocator:

@@ -43,8 +43,8 @@ edges:
 Use the parser to load the workflow and bootstrap the Orchestrator with zero-code logic mapping:
 
 ```mojo
-from ararat.infra.parser import WorkflowParser
-from ararat.controller.sdn import AraratOrchestrator
+from src.infra.parser import WorkflowParser
+from src.controller.sdn import AraratOrchestrator
 
 var parser = WorkflowParser()
 var workflow_data = parser.load_from_yaml("workflows/neuromodulation.yaml")
@@ -62,9 +62,9 @@ If dynamically rendering topologies internally, you can construct `WorkflowNode`
 You must manually wrap components into lists and explicitly transfer ownership limits via reference syntax (`^`).
 
 ```mojo
-from ararat.core.workflow_node import WorkflowNode
-from ararat.core.hyperedge import Hyperedge
-from ararat.controller.sdn import AraratOrchestrator
+from src.core.workflow_node import WorkflowNode
+from src.core.hyperedge import Hyperedge
+from src.controller.sdn import AraratOrchestrator
 from std.collections import List
 
 var orchestrator = AraratOrchestrator()

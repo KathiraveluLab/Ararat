@@ -1,7 +1,7 @@
-from ararat.core.workflow_node import WorkflowNode
-from ararat.core.hyperedge import Hyperedge
-from ararat.controller.sdn import AraratOrchestrator
-from ararat.infra.parser import WorkflowParser
+from src.core.workflow_node import WorkflowNode
+from src.core.hyperedge import Hyperedge
+from src.controller.sdn import AraratOrchestrator
+from src.infra.parser import WorkflowParser
 from std.collections import List
 
 def run_neuromodulation_sim():

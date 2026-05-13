@@ -99,7 +99,7 @@ pixi run mojo main.mojo
 You can also invoke this sim function directly:
 
 ```mojo
-from ararat.sim.closed_loop_sim import run_yaml_driven_sim
+from src.sim.closed_loop_sim import run_yaml_driven_sim
 
 def main() raises:
     run_yaml_driven_sim()
@@ -176,7 +176,7 @@ pixi run mojo main.mojo
 `main.mojo` calls all three in sequence:
 
 ```mojo
-from ararat.sim.closed_loop_sim import run_neuromodulation_sim, run_yaml_driven_sim, run_hot_swap_sim
+from src.sim.closed_loop_sim import run_neuromodulation_sim, run_yaml_driven_sim, run_hot_swap_sim
 
 def main() raises:
     print("\n=== 1. Programmatic Simulation (API) ===")
@@ -216,8 +216,8 @@ edges:
 2. Load it via the API:
 
 ```mojo
-from ararat.infra.parser import WorkflowParser
-from ararat.controller.sdn import AraratOrchestrator
+from src.infra.parser import WorkflowParser
+from src.controller.sdn import AraratOrchestrator
 
 def my_sim() raises:
     var parser = WorkflowParser()

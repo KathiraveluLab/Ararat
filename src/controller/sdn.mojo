@@ -1,7 +1,7 @@
 from std.collections import List, Dict
-from ararat.core.workflow_node import WorkflowNode
-from ararat.core.hyperedge import Hyperedge
-from ararat.infra.launcher import ServiceLauncher
+from src.core.workflow_node import WorkflowNode
+from src.core.hyperedge import Hyperedge
+from src.infra.launcher import ServiceLauncher
 
 struct AraratOrchestrator:
     """

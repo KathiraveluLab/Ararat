@@ -1,5 +1,5 @@
-from ararat.core.node import Node
-from ararat.core.link import Link
+from src.core.node import Node
+from src.core.link import Link
 from std.collections import List
 
 struct ETT2018Topology:

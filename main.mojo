@@ -1,4 +1,4 @@
-from ararat.sim.closed_loop_sim import run_neuromodulation_sim, run_yaml_driven_sim, run_hot_swap_sim
+from src.sim.closed_loop_sim import run_neuromodulation_sim, run_yaml_driven_sim, run_hot_swap_sim
 
 def main() raises:
     """

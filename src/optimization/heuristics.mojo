@@ -1,6 +1,6 @@
-from ararat.core.node import Node
-from ararat.core.link import Link
-from ararat.core.service import Service
+from src.core.node import Node
+from src.core.link import Link
+from src.core.service import Service
 from std.collections import List
 
 struct FineGrainedHeuristic:
