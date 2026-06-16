@@ -1,4 +1,4 @@
-from src.sim.closed_loop_sim import run_neuromodulation_sim, run_yaml_driven_sim, run_hot_swap_sim, run_neo4j_sim
+from src.sim.closed_loop_sim import run_neuromodulation_sim, run_yaml_driven_sim, run_hot_swap_sim, run_neo4j_sim, run_evaluation_sim
 
 def main() raises:
     """
@@ -14,4 +14,5 @@ def main() raises:
     run_hot_swap_sim()
     print("\n=== 4. Neo4j-Native Simulation ===")
     run_neo4j_sim()
+    run_evaluation_sim()
 

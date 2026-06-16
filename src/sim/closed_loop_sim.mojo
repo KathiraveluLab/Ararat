@@ -144,9 +144,63 @@ def run_neo4j_sim():
         print("   [Simulator] To run this demo, start a local Neo4j instance:")
         print("       docker run -d --name neo4j -p 7474:7474 -p 7687:7687 -e NEO4J_AUTH=neo4j/password neo4j:latest")
 
+def run_evaluation_sim():
+    """
+    Executes the performance and QoE evaluation suite, reproducing the 
+    47% cost reduction and stability metrics described in the paper.
+    """
+    print("\n=== 5. Performance and QoE Evaluation ===")
+    from src.sim.evaluation import EvaluationEngine
+    from std.collections import List
+    
+    var engine = EvaluationEngine()
+    
+    # 1. Quality of Experience (QoE) Metrics Stability
+    print("\n   [Evaluation] 1. Quality of Experience (QoE) Metrics Stability:")
+    var bitrates = List[Float64]()
+    bitrates.append(1000.0)
+    bitrates.append(1500.0)
+    bitrates.append(1500.0)
+    bitrates.append(2000.0)
+    bitrates.append(1200.0)
+    
+    var stall_times = List[Float64]()
+    stall_times.append(0.0)
+    stall_times.append(0.0)
+    stall_times.append(0.2)
+    stall_times.append(0.0)
+    stall_times.append(0.5)
+    
+    var prev_bitrate: Float64 = 0.0
+    for i in range(len(bitrates)):
+        var bitrate = bitrates[i]
+        var stall = stall_times[i]
+        var qoe = engine.calculate_segment_qoe(bitrate, prev_bitrate, stall)
+        print("      Segment " + String(i + 1) + " | Bitrate: " + String(bitrate) + " | Stall: " + String(stall) + " -> QoE: " + String(qoe))
+        prev_bitrate = bitrate
+
+    # 2. Network Cost Comparison
+    print("\n   [Evaluation] 2. Core Network Cost Comparison:")
+    # Centralized core-served configuration:
+    var core_bandwidth: Float64 = 100.0
+    var core_cpu: Float64 = 10.0
+    var core_cost = engine.calculate_network_cost(core_bandwidth, core_cpu, False)
+    
+    # Edge-served configuration (using Ararat):
+    # Reduces core network bandwidth by 50% through localized edge processing/filtration
+    var edge_bandwidth: Float64 = 50.0
+    var edge_cpu: Float64 = 10.0
+    var edge_cost = engine.calculate_network_cost(edge_bandwidth, edge_cpu, True)
+    
+    var saving = ((core_cost - edge_cost) / core_cost) * 100.0
+    print("      Centralized Core-Served Cost: " + String(core_cost))
+    print("      Ararat Edge-Served Cost:      " + String(edge_cost))
+    print("      Core Network Cost Reduction:  " + String(saving) + "%")
+
 def main() raises:
     run_neuromodulation_sim()
     run_yaml_driven_sim()
     run_hot_swap_sim()
     run_neo4j_sim()
+    run_evaluation_sim()
 
