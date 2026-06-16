@@ -173,16 +173,32 @@ while `STIMULATION_FEEDBACK` remains synchronous — exactly as defined in
 
 ---
 
-## Running All Three Simulations at Once
+## Simulation 4 — Neo4j-Native Database-Driven Simulation
+
+This demonstrates using Neo4j as a central graph state machine. The orchestrator:
+1. Connects to the Neo4j instance at `bolt://localhost:7687` using standard graph credentials.
+2. Models the Directed Hypergraph (DHG) nodes and hyperedges directly in the property graph.
+3. Automatically runs a cycle detection query to identify any feedback loops (dicycles).
+4. Coordinates stateless execution using atomic Cypher transaction queries.
+5. Emulates a workflow node failure to trigger a transitive downstream dependency block (fault isolation), ensuring that all nodes relying on the failed component's outputs are safely pruned.
+
+```bash
+pixi run mojo main.mojo
+# Look for the section: "=== 4. Neo4j-Native Simulation ==="
+```
+
+---
+
+## Running All Simulations at Once
 
 ```bash
 pixi run mojo main.mojo
 ```
 
-`main.mojo` calls all three in sequence:
+`main.mojo` calls all four in sequence:
 
 ```mojo
-from src.sim.closed_loop_sim import run_neuromodulation_sim, run_yaml_driven_sim, run_hot_swap_sim
+from src.sim.closed_loop_sim import run_neuromodulation_sim, run_yaml_driven_sim, run_hot_swap_sim, run_neo4j_sim
 
 def main() raises:
     print("\n=== 1. Programmatic Simulation (API) ===")
@@ -191,6 +207,8 @@ def main() raises:
     run_yaml_driven_sim()
     print("\n=== 3. Hot-Swap Simulation (dynamic_update.yaml) ===")
     run_hot_swap_sim()
+    print("\n=== 4. Neo4j-Native Simulation ===")
+    run_neo4j_sim()
 ```
 
 ---

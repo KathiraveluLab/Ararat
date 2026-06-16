@@ -1,9 +1,9 @@
-# Ararat: Software-Defined DHG Workflow Orchestrator
+# Ararat: Neo4j-Native Software-Defined DHG Workflow Orchestrator
 
 [![Mojo version](https://img.shields.io/badge/Mojo-24.x-7d32a8.svg)](https://www.modular.com/mojo)
 [![Research Parity](https://img.shields.io/badge/Research-100%25%20Parity-green.svg)](#research-parity)
 
-**Ararat** is a high-performance, logically centralized orchestration framework for **Software-Defined Workflows (SDW)**. Built in the **Mojo** programming language, it leverages **Directed Hypergraphs (DHG)** to model and execute complex, distributed closed-loop systems—specifically optimized for neuromodulation control systems.
+**Ararat** is a general-purpose, high-performance orchestration framework for **Software-Defined Workflows (SDW)**. Built in the **Mojo** programming language and integrated natively with the **Neo4j** graph database, it leverages **Directed Hypergraphs (DHG)** to model and execute complex, distributed closed-loop systems (such as neuromodulation control systems).
 
 ---
 
@@ -13,11 +13,15 @@
 graph TD
     classDef control fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
     classDef data fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef database fill:#f3e5f5,stroke:#8e24aa,stroke-width:2px;
     
     subgraph Control_Plane ["Control Plane"]
         API["Northbound API<br>(Dynamic Hot-Swapping)"]
-        Orchestrator["Ararat Orchestrator<br>(Logically Centralized)"]
-        API -.-> Orchestrator
+        Orchestrator["Stateless Ararat Orchestrator<br>(Mojo Engine)"]
+        DB[("Neo4j Graph Database<br>(Shared State Machine)")]
+        
+        API == "Graph Mutation" ==> DB
+        Orchestrator == "Cypher Polling / ACIDs" ==> DB
     end
 
     subgraph Data_Plane ["Data Plane (Service Agents)"]
@@ -37,14 +41,16 @@ graph TD
 
     class API,Orchestrator control;
     class Sensing,Controller,Stimulator,Logger data;
+    class DB database;
 ```
 
-Ararat is inspired by **Software-Defined Networking (SDN)**, separating the **Control Plane** (Orchestration) from the **Data Plane** (Service Execution). This allows for:
+Ararat separates the **Control Plane** (Orchestration State & Rules) from the **Data Plane** (Service Execution), utilizing a database-driven architecture:
 
--   **Directed Hypergraphs (DHG)**: Moving beyond the constraints of DAGs to support cycles, feedback loops, and 1-to-many hyperedges.
--   **Logically Centralized Control**: A unified orchestrator manages the workflow state while data flows orthogonally between distributed services.
--   **Heterogeneous Execution**: Native support for polyglot services running in **Docker**, **Singularity**, or as local processes.
--   **Dynamic Adaptability**: Real-time "Hot-Swap" of workflow topologies without resetting service context.
+-   **Neo4j-Native Control**: The Directed Hypergraph workflow topology and execution states are stored directly in a Neo4j property graph.
+-   **Stateless Mojo Orchestrators**: Multiple stateless, high-performance Mojo execution engines query and claim tasks atomically using Cypher queries, eliminating centralized state bottlenecks.
+-   **Graph-Native Algorithms**: Performs topological operations (such as cycle checking and transitive downstream path pruning for fault isolation) directly in the database.
+-   **Directed Hypergraphs (DHG)**: Natively supports complex topological patterns, including cycles, dicycles, and 1-to-many hyperedges.
+-   **Dynamic Adaptability**: Real-time "Hot-Swap" of active workflow topologies by executing basic graph mutations on the Neo4j database, without restarting running orchestrators or service agents.
 
 ---
 
