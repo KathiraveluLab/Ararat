@@ -123,10 +123,20 @@ def run_neo4j_sim():
         
         session.close()
         
+        # Check for loops/cycles in the workflow template
+        print("   [Simulator] Running cycle detection algorithm...")
+        _ = orchestrator.check_cycles()
+        
         # Run a few loops
         for i in range(2):
             print("\n   --- Neo4j Loop Iteration " + String(i + 1) + " ---")
             orchestrator.run_orchestration_loop()
+            
+        # Mocking a service node failure to show transitive downstream dependency pruning in action
+        print("\n   [Simulator] Mocking failure on Node 0 to trigger downstream path pruning...")
+        var prune_session = orchestrator.driver.session()
+        orchestrator.prune_downstream(prune_session, 0)
+        prune_session.close()
             
         orchestrator.close()
     except:

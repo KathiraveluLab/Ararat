@@ -67,10 +67,55 @@ struct Neo4jOrchestrator:
             except:
                 print("   [Control Plane] ERROR: Execution failed for Node " + String(node_id))
                 self._mark_node_failed(session, node_id)
+                self.prune_downstream(session, node_id)
         else:
             print("   [Control Plane] No pending ready nodes found. Workflow completed or blocked.")
             
         session.close()
+
+    def check_cycles(self) raises -> Bool:
+        """
+        Runs a cycle detection query to check if there are loop dependencies
+        in the workflow. Returns True if a cycle is detected, otherwise False.
+        """
+        var session = self.driver.session()
+        var cycle_query = (
+            "MATCH path = (n:ServiceNode)-[:OUTFLOW|INFLOW*]->(n) "
+            "RETURN DISTINCT n.id AS id, n.name AS name, length(path) / 2 AS cycle_length"
+        )
+        var result = session.run(cycle_query)
+        var found_cycle = False
+        while result.has_next():
+            var record = result.next()
+            found_cycle = True
+            var node_id = String(record["id"])
+            var name = String(record["name"])
+            var cycle_len = String(record["cycle_length"])
+            print("   [Cycle Warning] Node " + name + " (ID: " + node_id + ") is part of a cycle of length " + cycle_len)
+        session.close()
+        return found_cycle
+
+    def prune_downstream(self, session: PythonObject, failed_node_id: Int) raises:
+        """
+        Finds all service nodes and hyperedges downstream of the failed node 
+        and updates their status to 'BLOCKED' to isolate the failure.
+        """
+        var prune_query = (
+            "MATCH (failed:ServiceNode {id: $failed_node_id}) "
+            "MATCH path = (failed)-[:OUTFLOW|INFLOW*]->(downstream) "
+            "SET downstream.status = 'BLOCKED' "
+            "RETURN downstream.id AS id, downstream.name AS name"
+        )
+        var parameters = Python.dict()
+        parameters["failed_node_id"] = failed_node_id
+        
+        var result = session.run(prune_query, parameters)
+        print("   [Fault Isolation] Pruning downstream nodes from failed Node " + String(failed_node_id))
+        while result.has_next():
+            var record = result.next()
+            var name = String(record["name"])
+            var node_id = String(record["id"])
+            print("   [Fault Isolation] -> Blocked downstream Node " + name + " (ID: " + node_id + ")")
 
     def _mark_node_completed(self, session: PythonObject, node_id: Int) raises:
         """
@@ -106,3 +151,4 @@ struct Neo4jOrchestrator:
         parameters["node_id"] = node_id
         session.run(fail_query, parameters)
         print("   [Control Plane] Node " + String(node_id) + " marked FAILED.")
+
