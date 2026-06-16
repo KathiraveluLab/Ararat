@@ -90,7 +90,53 @@ def run_hot_swap_sim() raises:
     print("\n>> Phase 2: Post-Update Control Flow (Asynchronous Signaling)")
     orchestrator.orchestrate_pass()
 
+def run_neo4j_sim():
+    """
+    Demonstrates the database-driven Neo4jOrchestrator.
+    Attempts to connect to a local Neo4j database, initializes a sample
+    Directed Hypergraph (DHG) topology, and runs a stateless query execution loop.
+    If Neo4j is not reachable, it fails gracefully with setup instructions.
+    """
+    print("\n=== Neo4j-Native Database-Driven Simulation ===")
+    from src.controller.neo4j_orchestrator import Neo4jOrchestrator
+    try:
+        var orchestrator = Neo4jOrchestrator("bolt://localhost:7687", "neo4j", "password")
+        
+        # Set up a sample topology
+        var session = orchestrator.driver.session()
+        print("   [Simulator] Initializing general-purpose workflow in Neo4j...")
+        
+        # Clear existing
+        session.run("MATCH (n) DETACH DELETE n")
+        
+        # Create ServiceNodes
+        session.run("CREATE (n:ServiceNode {id: 0, name: 'Sensing Node', platform: 'local', image: 'scripts/bayesian_optimizer.py', status: 'PENDING'})")
+        session.run("CREATE (n:ServiceNode {id: 1, name: 'Controller Node', platform: 'local', image: 'scripts/bayesian_optimizer.py', status: 'PENDING'})")
+        
+        # Create Hyperedges
+        session.run("CREATE (e:Hyperedge {id: 10, label: 'DATA_STREAM', status: 'IDLE', is_blocking: true})")
+        session.run("CREATE (e:Hyperedge {id: 11, label: 'CONTROL_FEEDBACK', status: 'IDLE', is_blocking: true})")
+        
+        # Connect outflow/inflow
+        session.run("MATCH (src:ServiceNode {id: 0}), (edge:Hyperedge {id: 10}), (dst:ServiceNode {id: 1}) CREATE (src)-[:OUTFLOW]->(edge), (edge)-[:INFLOW]->(dst)")
+        session.run("MATCH (src:ServiceNode {id: 1}), (edge:Hyperedge {id: 11}), (dst:ServiceNode {id: 0}) CREATE (src)-[:OUTFLOW]->(edge), (edge)-[:INFLOW]->(dst)")
+        
+        session.close()
+        
+        # Run a few loops
+        for i in range(2):
+            print("\n   --- Neo4j Loop Iteration " + String(i + 1) + " ---")
+            orchestrator.run_orchestration_loop()
+            
+        orchestrator.close()
+    except:
+        print("   [Simulator] Neo4j is not reachable at bolt://localhost:7687.")
+        print("   [Simulator] To run this demo, start a local Neo4j instance:")
+        print("       docker run -d --name neo4j -p 7474:7474 -p 7687:7687 -e NEO4J_AUTH=neo4j/password neo4j:latest")
+
 def main() raises:
     run_neuromodulation_sim()
     run_yaml_driven_sim()
     run_hot_swap_sim()
+    run_neo4j_sim()
+
