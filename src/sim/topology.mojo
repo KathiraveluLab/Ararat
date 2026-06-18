@@ -66,6 +66,6 @@ struct EuropeanCoreTopology:
         self.links.append(Link(dest, src, bw, lat))
 
     def display_status(mut self):
-        print("ETT 2018 Topology Summary:")
+        print("European Core Topology Summary:")
         print(" - Nodes Loaded: ", len(self.nodes))
         print(" - Active Bi-directional Links: ", len(self.links))

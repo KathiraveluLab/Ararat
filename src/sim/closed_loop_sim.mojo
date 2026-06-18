@@ -98,7 +98,7 @@ def run_neo4j_sim():
     """
     Demonstrates the database-driven Neo4jOrchestrator.
     Attempts to connect to a local Neo4j database, initializes a sample
-    Directed Hypergraph (DHG) topology alongside the ETT 2018 physical network topology,
+    Directed Hypergraph (DHG) topology alongside the European Core physical network topology,
     and runs a stateless query execution loop with network-aware service placement.
     If Neo4j is not reachable, it fails gracefully with setup instructions.
     """
