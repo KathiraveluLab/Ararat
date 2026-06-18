@@ -83,11 +83,19 @@ struct AraratOrchestrator:
             self.emit_control_event(node.id, "TRIGGER_EXECUTION")
             
             # 2. Invoke Data Plane Service
-            var dummy_input = Dict[String, Float64]()
-            var output = node.process(dummy_input)
+            if node.platform != "":
+                try:
+                    # In real deployment, execute containerized runtime via launcher
+                    self.launcher.launch_container(node.platform, node.image, "")
+                except err:
+                    print("   [Orchestrator] WARNING: Container execution bypassed: " + String(err))
+            else:
+                var dummy_input = Dict[String, Float64]()
+                _ = node.process(dummy_input)
             
             # 3. Propagate output through Hyperedges (Respecting Synchronicity)
-            self._propagate_data(node.id, output)
+            var dummy_output = Dict[String, Float64]()
+            self._propagate_data(node.id, dummy_output)
 
     def _propagate_data(mut self, source_id: Int, data: Dict[String, Float64]):
         """

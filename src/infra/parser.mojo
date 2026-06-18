@@ -36,7 +36,7 @@ struct WorkflowParser:
             var image    = String(y_node.get("image", ""))
             print("   -> Node " + String(id) + ": " + name +
                   " [" + platform + "] " + image)
-            nodes.append(WorkflowNode(id, name))
+            nodes.append(WorkflowNode(id, name, platform, image))
             
         return nodes^
 
