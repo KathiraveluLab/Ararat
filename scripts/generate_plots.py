@@ -77,7 +77,7 @@ ararat_qoe = calculate_qoe(ararat_bitrates, ararat_stalls)
 centralized_qoe = calculate_qoe(centralized_bitrates, centralized_stalls)
 
 # Create a figure with 2 subplots (1 row, 2 columns)
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8.0, 2.4))
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8.0, 1.95))
 
 # Subplot 1: QoE Comparison over segments
 ax1.plot(segments, ararat_qoe, marker='o', linewidth=1.5, color='#1f77b4', label='Ararat (Edge)')
