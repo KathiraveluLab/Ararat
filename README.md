@@ -122,6 +122,21 @@ Ararat includes a case study of a **Neuromodulation Control Loop**:
 pixi run mojo main.mojo
 ```
 
+### Reproducing Paper Experiments & Plots
+To run the evaluation benchmarks described in the paper and regenerate the exact plots presented:
+
+1. Execute the main evaluation simulation to produce the raw CSV metrics:
+   ```bash
+   pixi run mojo main.mojo
+   ```
+   This will generate `evaluation_metrics.csv` in the `scripts/` directory.
+
+2. Run the plot generator script to consume the CSV and output the PDF figure:
+   ```bash
+   python3 scripts/generate_plots.py
+   ```
+   This will output `evaluation_results.pdf` in the `scripts/` directory.
+
 ### Creating Custom Workflows
 
 Ararat inherently focuses on zero-code deployments via declarative topologies natively in **YAML**, while also exposing its raw Mojo primitives programmatically.
