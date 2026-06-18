@@ -18,11 +18,19 @@ struct ETT2018Topology:
         
     def initialize_nodes(mut self):
         # 12 major European cities (Node IDs: 0 to 11)
-        var cities = List[String](
-            "London", "Paris", "Amsterdam", "Berlin", "Vienna", 
-            "Warsaw", "Prague", "Zurich", "Milan", "Madrid", 
-            "Rome", "Frankfurt"
-        )
+        var cities = List[String]()
+        cities.append("London")
+        cities.append("Paris")
+        cities.append("Amsterdam")
+        cities.append("Berlin")
+        cities.append("Vienna")
+        cities.append("Warsaw")
+        cities.append("Prague")
+        cities.append("Zurich")
+        cities.append("Milan")
+        cities.append("Madrid")
+        cities.append("Rome")
+        cities.append("Frankfurt")
         for i in range(len(cities)):
             # Initializing with standard edge resource capacities
             self.nodes.append(Node(i, cities[i], 100.0, 1024.0)) # 100 CPU units, 1GB RAM

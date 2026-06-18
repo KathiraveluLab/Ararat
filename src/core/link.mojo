@@ -1,4 +1,4 @@
-struct Link:
+struct Link(Copyable, Movable):
     var source_id: Int
     var dest_id: Int
     var bandwidth: Float64
@@ -11,6 +11,25 @@ struct Link:
         self.bandwidth = bandwidth
         self.latency = latency
         self.available_bandwidth = bandwidth
+
+    def __copyinit__(out self, other: Self):
+        self.source_id = other.source_id
+        self.dest_id = other.dest_id
+        self.bandwidth = other.bandwidth
+        self.latency = other.latency
+        self.available_bandwidth = other.available_bandwidth
+
+    def __moveinit__(out self, owned other: Self):
+        self.source_id = other.source_id
+        self.dest_id = other.dest_id
+        self.bandwidth = other.bandwidth
+        self.latency = other.latency
+        self.available_bandwidth = other.available_bandwidth
+
+    def copy(self) -> Self:
+        var res = Link(self.source_id, self.dest_id, self.bandwidth, self.latency)
+        res.available_bandwidth = self.available_bandwidth
+        return res^
 
     def display(mut self):
         print("Link:", self.source_id, "->", self.dest_id, "BW Capacity:", self.bandwidth, "Latency:", self.latency)

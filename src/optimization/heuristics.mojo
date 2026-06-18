@@ -25,8 +25,8 @@ struct FineGrainedHeuristic:
         var highest_resource_availability: Float64 = 0.0
         
         for i in range(len(nodes)):
-            var node = nodes[i]
-            if node.node_type == "EDGE":
+            var node = nodes[i].copy()
+            if node.node_type != "SDN" and node.node_type != "CLIENT":
                 if node.available_cpu >= service.cpu_required and node.available_memory >= service.memory_required:
                     # Heuristic score: Combined available resources
                     var current_score = node.available_cpu + node.available_memory
@@ -63,8 +63,8 @@ struct CoarseGrainedHeuristic:
         var max_cpu: Float64 = -1.0
         
         for i in range(len(nodes)):
-            var node = nodes[i]
-            if node.node_type == "EDGE" and node.available_cpu >= service.cpu_required:
+            var node = nodes[i].copy()
+            if node.node_type != "SDN" and node.node_type != "CLIENT" and node.available_cpu >= service.cpu_required:
                 if node.available_cpu > max_cpu:
                     max_cpu = node.available_cpu
                     best_node_id = node.id
