@@ -40,6 +40,7 @@ struct Neo4jOrchestrator:
         4. Update status and propagate outbound hyperedge states.
         """
         var session = self.driver.session()
+        var builtins = Python.import_module("builtins")
         
         # Cypher query to retrieve and lock the next ready node atomically
         var fetch_query = (
@@ -51,8 +52,9 @@ struct Neo4jOrchestrator:
         )
         
         var result = session.run(fetch_query)
-        if result.has_next():
-            var record = result.next()
+        var records = builtins.list(result)
+        if len(records) > 0:
+            var record = records[0]
             var node_id = atol(String(record["id"]))
             var name = String(record["name"])
             var platform = String(record["platform"])
@@ -79,14 +81,16 @@ struct Neo4jOrchestrator:
         in the workflow. Returns True if a cycle is detected, otherwise False.
         """
         var session = self.driver.session()
+        var builtins = Python.import_module("builtins")
         var cycle_query = (
             "MATCH path = (n:ServiceNode)-[:OUTFLOW|INFLOW*]->(n) "
             "RETURN DISTINCT n.id AS id, n.name AS name, length(path) / 2 AS cycle_length"
         )
         var result = session.run(cycle_query)
+        var records = builtins.list(result)
         var found_cycle = False
-        while result.has_next():
-            var record = result.next()
+        for i in range(len(records)):
+            var record = records[i]
             found_cycle = True
             var node_id = String(record["id"])
             var name = String(record["name"])
@@ -109,10 +113,12 @@ struct Neo4jOrchestrator:
         var parameters = Python.dict()
         parameters["failed_node_id"] = failed_node_id
         
+        var builtins = Python.import_module("builtins")
         var result = session.run(prune_query, parameters)
+        var records = builtins.list(result)
         print("   [Fault Isolation] Pruning downstream nodes from failed Node " + String(failed_node_id))
-        while result.has_next():
-            var record = result.next()
+        for i in range(len(records)):
+            var record = records[i]
             var name = String(record["name"])
             var node_id = String(record["id"])
             print("   [Fault Isolation] -> Blocked downstream Node " + name + " (ID: " + node_id + ")")
@@ -132,10 +138,12 @@ struct Neo4jOrchestrator:
         var parameters = Python.dict()
         parameters["node_id"] = node_id
         
+        var builtins = Python.import_module("builtins")
         var result = session.run(complete_query, parameters)
+        var records = builtins.list(result)
         print("   [Control Plane] Node " + String(node_id) + " marked COMPLETED.")
-        while result.has_next():
-            var record = result.next()
+        for i in range(len(records)):
+            var record = records[i]
             print("   [Sync Signal] Activated Outbound Hyperedge: " + String(record["label"]))
 
     def _mark_node_failed(self, session: PythonObject, node_id: Int) raises:
