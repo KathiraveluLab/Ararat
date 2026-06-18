@@ -3,7 +3,7 @@ from src.core.hyperedge import Hyperedge
 from src.controller.sdn import AraratOrchestrator
 from src.infra.parser import WorkflowParser
 from std.collections import List
-from src.sim.topology import ETT2018Topology
+from src.sim.topology import EuropeanCoreTopology
 from src.optimization.heuristics import FineGrainedHeuristic
 from src.core.service import Service
 from std.python import Python
@@ -126,11 +126,11 @@ def run_neo4j_sim():
         session.run("MATCH (src:ServiceNode {id: 0}), (edge:Hyperedge {id: 10}), (dst:ServiceNode {id: 1}) CREATE (src)-[:OUTFLOW]->(edge), (edge)-[:INFLOW]->(dst)")
         session.run("MATCH (src:ServiceNode {id: 1}), (edge:Hyperedge {id: 11}), (dst:ServiceNode {id: 0}) CREATE (src)-[:OUTFLOW]->(edge), (edge)-[:INFLOW]->(dst)")
         
-        # Load ETT 2018 physical network topology in Neo4j
-        var topo = ETT2018Topology()
+        # Load European Core physical network topology in Neo4j
+        var topo = EuropeanCoreTopology()
         var fg = FineGrainedHeuristic()
         
-        # Create ETT 2018 physical nodes
+        # Create European Core physical nodes
         var node_query = (
             "CREATE (n:NetworkNode {id: $id, name: $name, cpu_capacity: $cpu_cap, "
             "memory_capacity: $mem_cap, available_cpu: $cpu_avail, available_memory: $mem_avail, "
@@ -148,7 +148,7 @@ def run_neo4j_sim():
             parameters["type"] = "EDGE"
             session.run(node_query, parameters)
             
-        # Create ETT 2018 physical links
+        # Create European Core physical links
         var link_query = (
             "MATCH (src:NetworkNode {id: $src}), (dst:NetworkNode {id: $dst}) "
             "CREATE (src)-[:LINK {bandwidth: $bw, latency: $lat}]->(dst)"
@@ -162,7 +162,7 @@ def run_neo4j_sim():
             parameters["lat"] = link.latency
             session.run(link_query, parameters)
             
-        print("   [Network Topology] Loaded ETT 2018 physical network topology in Neo4j (12 cities, 18 links).")
+        print("   [Network Topology] Loaded European Core physical network topology in Neo4j (12 cities, 18 links).")
         
         # Perform service allocation using the heuristic
         var sensing_service = Service(0, "SENSING", 15.0, 128.0, 100.0)

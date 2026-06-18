@@ -2,9 +2,9 @@ from src.core.node import Node
 from src.core.link import Link
 from std.collections import List
 
-struct ETT2018Topology:
+struct EuropeanCoreTopology:
     """
-    Implementation of the European Trunk Topology (ETT) 2018 benchmark.
+    Implementation of the European Core Network Topology benchmark.
     Consists of 12 Nodes and 18 bi-directional Links.
     """
     var nodes: List[Node]
@@ -36,7 +36,7 @@ struct ETT2018Topology:
             self.nodes.append(Node(i, cities[i], 100.0, 1024.0)) # 100 CPU units, 1GB RAM
             
     def initialize_links(mut self):
-        # Default research parameters for ETT
+        # Default research parameters for the topology
         var bw = 10000.0 # 10,000 Mbps (10 Gbps) bandwidth
         var lat = 10.0   # 10.0 ms average latency
         
