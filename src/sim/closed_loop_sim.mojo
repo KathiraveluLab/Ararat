@@ -115,8 +115,8 @@ def run_neo4j_sim():
         session.run("MATCH (n) DETACH DELETE n")
         
         # Create ServiceNodes
-        session.run("CREATE (n:ServiceNode {id: 0, name: 'Sensing Node', platform: 'local', image: 'scripts/bayesian_optimizer.py', status: 'PENDING'})")
-        session.run("CREATE (n:ServiceNode {id: 1, name: 'Controller Node', platform: 'local', image: 'scripts/bayesian_optimizer.py', status: 'PENDING'})")
+        session.run("CREATE (n:ServiceNode {id: 0, name: 'Service Node A', platform: 'local', image: 'scripts/bayesian_optimizer.py', status: 'PENDING'})")
+        session.run("CREATE (n:ServiceNode {id: 1, name: 'Service Node B', platform: 'local', image: 'scripts/bayesian_optimizer.py', status: 'PENDING'})")
         
         # Create Hyperedges
         session.run("CREATE (e:Hyperedge {id: 10, label: 'DATA_STREAM', status: 'IDLE', is_blocking: true})")
@@ -180,8 +180,8 @@ def run_neo4j_sim():
             c_city = topo.nodes[c_placed_id].node_type
             
         print("   [Network-Aware Placement] FineGrainedHeuristic resolved optimal edge nodes:")
-        print("      -> Sensing Node (ID: 0) mapped to NetworkNode " + String(s_placed_id) + " (" + s_city + ")")
-        print("      -> Controller Node (ID: 1) mapped to NetworkNode " + String(c_placed_id) + " (" + c_city + ")")
+        print("      -> Service Node A (ID: 0) mapped to NetworkNode " + String(s_placed_id) + " (" + s_city + ")")
+        print("      -> Service Node B (ID: 1) mapped to NetworkNode " + String(c_placed_id) + " (" + c_city + ")")
         
         # Save mapping to Neo4j
         if s_placed_id != -1:
