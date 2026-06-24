@@ -90,7 +90,8 @@ Ararat/
 │       └── plant_model.sh
 ├── workflows/          # YAML-based DHG definitions
 ├── setup.sh            # Idempotent environment setup
-└── main.mojo           # Entry point
+├── main.mojo           # CLI runner for custom user workflows
+└── run_use_cases.mojo  # Verification suite running pre-defined research use cases
 ```
 
 ---
@@ -114,12 +115,20 @@ The script handles:
 
 > If you prefer to run steps manually, see [Tutorial.md](Tutorial.md#prerequisites).
 
-### Running a Simulation
-Ararat includes a case study of a **Neuromodulation Control Loop**:
+### Running Predefined Use Cases
+To execute the bundled research use cases (Neuromodulation Control Loop, Dynamic Hot-Swap, Network-Aware Routing, etc.):
 
 ```bash
 # Run the complete verification suite using Pixi
-pixi run mojo main.mojo
+pixi run mojo run_use_cases.mojo
+```
+
+### Executing Custom Workflows (CLI)
+Ararat allows you to run any user-defined workflow YAML directly through the CLI:
+
+```bash
+# Run a custom workflow YAML definition
+pixi run mojo main.mojo workflows/neuromodulation.yaml --iterations 5
 ```
 
 ### Reproducing Paper Experiments & Plots
@@ -127,7 +136,7 @@ To run the evaluation benchmarks described in the paper and regenerate the exact
 
 1. Execute the main evaluation simulation to produce the raw CSV metrics:
    ```bash
-   pixi run mojo main.mojo
+   pixi run mojo run_use_cases.mojo
    ```
    This will generate `evaluation_metrics.csv` in the `scripts/` directory.
 

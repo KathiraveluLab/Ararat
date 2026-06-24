@@ -70,7 +70,7 @@ nodes:
 This is the baseline, defined directly in Mojo:
 
 ```bash
-pixi run mojo main.mojo
+pixi run mojo run_use_cases.mojo
 ```
 
 The orchestrator creates Plant Model (PM) and Bayesian Optimizer (CTL) nodes
@@ -98,7 +98,7 @@ The `WorkflowParser` reads `neuromodulation.yaml`, constructs the nodes and
 hyperedges from it, and passes them to the Ararat Orchestrator:
 
 ```bash
-pixi run mojo main.mojo
+pixi run mojo run_use_cases.mojo
 # Look for the section: "=== 2. YAML-Driven Simulation ==="
 ```
 
@@ -138,7 +138,7 @@ The orchestrator:
 4. Runs another pass with the **updated** topology.
 
 ```bash
-pixi run mojo main.mojo
+pixi run mojo run_use_cases.mojo
 # Look for the section: "=== 3. Hot-Swap Simulation ==="
 ```
 
@@ -183,7 +183,7 @@ This demonstrates using Neo4j as a central graph state machine. The orchestrator
 5. Emulates a workflow node failure to trigger a transitive downstream dependency block (fault isolation), ensuring that all nodes relying on the failed component's outputs are safely pruned.
 
 ```bash
-pixi run mojo main.mojo
+pixi run mojo run_use_cases.mojo
 # Look for the section: "=== 4. Neo4j-Native Simulation ==="
 ```
 
@@ -192,13 +192,13 @@ pixi run mojo main.mojo
 ## Running All Simulations at Once
 
 ```bash
-pixi run mojo main.mojo
+pixi run mojo run_use_cases.mojo
 ```
 
-`main.mojo` calls all four in sequence:
+`run_use_cases.mojo` calls all five in sequence:
 
 ```mojo
-from src.sim.closed_loop_sim import run_neuromodulation_sim, run_yaml_driven_sim, run_hot_swap_sim, run_neo4j_sim
+from run_use_cases import run_neuromodulation_sim, run_yaml_driven_sim, run_hot_swap_sim, run_neo4j_sim, run_evaluation_sim
 
 def main() raises:
     print("\n=== 1. Programmatic Simulation (API) ===")
@@ -209,6 +209,7 @@ def main() raises:
     run_hot_swap_sim()
     print("\n=== 4. Neo4j-Native Simulation ===")
     run_neo4j_sim()
+    run_evaluation_sim()
 ```
 
 ---
