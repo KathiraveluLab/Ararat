@@ -17,8 +17,10 @@ def run_neuromodulation_sim():
     var orchestrator = AraratOrchestrator()
     
     # 1. Component Definition (Algorithm 1)
-    var pm_node = WorkflowNode(0, "Plant Model (PM)")
-    var ctl_node = WorkflowNode(1, "Bayesian Optimizer (CTL)")
+    var pm_node = WorkflowNode(0, "Sensing Agent")
+    var fe_node = WorkflowNode(1, "Feature Extractor")
+    var ctl_node = WorkflowNode(2, "Controller (CTL)")
+    var stim_node = WorkflowNode(3, "Stimulator Agent")
     
     # Initialize stateful context (Algorithm 2: contextualVariables)
     pm_node.update_context("gamma_band_power", 0.05)
@@ -27,24 +29,37 @@ def run_neuromodulation_sim():
     
     var nodes = List[WorkflowNode]()
     nodes.append(pm_node^)
+    nodes.append(fe_node^)
     nodes.append(ctl_node^)
+    nodes.append(stim_node^)
     
     # 2. Directed Hypergraph Definition (Equation 2: W = A -> B -> ... )
-    # In this closed-loop, PM sends data to CTL, and CTL provides feedback to PM.
     
-    # Hyperedge 1: PM -> {CTL} (Synchronous)
+    # Hyperedge 1: Sensing Agent -> {Feature Extractor} (Synchronous)
     var e1_dests = List[Int]()
     e1_dests.append(1)
     var e1 = Hyperedge(1, "NEURAL_RECORDING", 0, e1_dests, True)
     
-    # Hyperedge 2: CTL -> {PM} (Synchronous Feedback Loop)
+    # Hyperedge 2: Feature Extractor -> {Controller} (Synchronous)
     var e2_dests = List[Int]()
-    e2_dests.append(0)
-    var e2 = Hyperedge(2, "STIMULATION_PARAMS", 1, e2_dests, True)
+    e2_dests.append(2)
+    var e2 = Hyperedge(2, "BIOMARKERS", 1, e2_dests, True)
+    
+    # Hyperedge 3: Controller -> {Stimulator Agent} (Synchronous)
+    var e3_dests = List[Int]()
+    e3_dests.append(3)
+    var e3 = Hyperedge(3, "STIMULATION_COMMAND", 2, e3_dests, True)
+    
+    # Hyperedge 4: Stimulator Agent -> {Sensing Agent} (Synchronous Feedback Loop)
+    var e4_dests = List[Int]()
+    e4_dests.append(0)
+    var e4 = Hyperedge(4, "FEEDBACK_LOOP", 3, e4_dests, True)
     
     var edges = List[Hyperedge]()
     edges.append(e1^)
     edges.append(e2^)
+    edges.append(e3^)
+    edges.append(e4^)
     
     # 3. SDW Orchestration Initialization
     orchestrator.initialize_workflow(nodes^, edges^)

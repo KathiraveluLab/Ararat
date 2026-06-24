@@ -5,9 +5,17 @@ nodes:
     platform: docker
     image: kathiravelulab/neuromod-pm:latest
   - id: 1
-    name: Bayesian Optimizer (CTL)
+    name: Feature Extractor
+    platform: local
+    image: scripts/feature_extractor.py
+  - id: 2
+    name: Controller (CTL)
     platform: local
     image: scripts/bayesian_optimizer.py
+  - id: 3
+    name: Stimulator Agent
+    platform: local
+    image: scripts/stimulator.py
 edges:
   - id: 1
     label: NEURAL_RECORDING
@@ -16,8 +24,20 @@ edges:
       - 1
     is_blocking: 1
   - id: 2
-    label: STIMULATION_PARAMS
+    label: BIOMARKERS
     source: 1
+    destinations:
+      - 2
+    is_blocking: 1
+  - id: 3
+    label: STIMULATION_COMMAND
+    source: 2
+    destinations:
+      - 3
+    is_blocking: 1
+  - id: 4
+    label: FEEDBACK_LOOP
+    source: 3
     destinations:
       - 0
     is_blocking: 1
