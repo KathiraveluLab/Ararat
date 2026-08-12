@@ -41,4 +41,9 @@ struct WorkflowNode(Copyable, Movable):
 
     def process(mut self, input_vars: Dict[String, Float64]) -> Dict[String, Float64]:
         print("   [Service]", self.name, "processing iteration data...")
-        return Dict[String, Float64]()
+        # Merge incoming input variables into contextual variables
+        var output = self.contextual_variables.copy()
+        output["processed_timestamp"] = 1.0
+        return output^
+
+
