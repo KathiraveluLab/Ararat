@@ -23,3 +23,7 @@ AraratReview*.pdf
 .DS_Store
 Thumbs.db
 
+.claude
+.codex
+.cursor
+_bmad

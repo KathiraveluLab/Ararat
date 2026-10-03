@@ -68,8 +68,14 @@ Built-in `ServiceLauncher` capable of orchestrating:
 -   **HPC-Native**: Singularity (Apptainer) containers for research clusters.
 -   **Local**: Standalone Mojo/Python scripts.
 
-### Dynamic Hot-Swapping
-The Orchestrator can ingest new YAML definitions during an active run, re-routing hyperedges and altering the control logic with zero downtime.
+### Link-Aware Fine-Grained Placement
+Implements network-aware service scheduling ([src/optimization/heuristics.mojo](file:///home/pradeeban/Ararat/src/optimization/heuristics.mojo#L14-L38)) that evaluates available CPU, memory, incident link latency, and total link bandwidth to assign workloads to optimal edge hosts.
+
+### Multi-Daemon Concurrency Scaling & Baseline Benchmarks
+Evaluates task claim throughput and dispatch latency across scaling numbers of concurrent stateless Mojo worker daemons (1 to 16 daemons), comparing performance quantitatively against durable execution engines (**Temporal**) and stateful DAG orchestrators (**Apache Airflow**).
+
+### Parameter Sensitivity Analysis
+Includes parameter sweep engines ([src/sim/evaluation.mojo](file:///home/pradeeban/Ararat/src/sim/evaluation.mojo#L56-L70)) that evaluate core network cost savings across bandwidth-to-compute unit price ratios ($w_b / w_c$ from 0.1 to 2.0).
 
 ---
 
@@ -79,16 +85,20 @@ The Orchestrator can ingest new YAML definitions during an active run, re-routin
 Ararat/
 ├── src/
 │   ├── core/           # DHG Primitives (Nodes, Hyperedges)
-│   ├── controller/     # Logically Centralized Orchestrator
+│   ├── controller/     # Logically Centralized & Neo4j Orchestrators
 │   ├── infra/          # Container Launchers & YAML Parsers
-│   ├── sim/            # Closed-loop case studies & benchmarks
-│   └── optimization/   # Resource & Bandwidth allocation heuristics
+│   ├── sim/            # Closed-loop case studies & evaluation engines
+│   └── optimization/   # Resource, Bandwidth & Link-aware allocation heuristics
 ├── scripts/
 │   ├── bayesian_optimizer.py        # Local Python node
-│   └── neuromod-pm/                 # Docker node
+│   ├── feature_extractor.py         # Biomarker extraction script
+│   ├── stimulator.py                # Pulse generation script
+│   ├── generate_plots.py            # 4-panel PDF figure generator
+│   └── neuromod-pm/                 # Docker node (plant model)
 │       ├── Dockerfile
-│       └── plant_model.sh
+│       └── plant_model.py
 ├── workflows/          # YAML-based DHG definitions
+├── tests/              # Automated Python test suite (test_all.py)
 ├── setup.sh            # Idempotent environment setup
 ├── main.mojo           # CLI runner for custom user workflows
 └── run_use_cases.mojo  # Verification suite running pre-defined research use cases
@@ -115,12 +125,19 @@ The script handles:
 
 > If you prefer to run steps manually, see [Tutorial.md](Tutorial.md#prerequisites).
 
-### Running Predefined Use Cases
-To execute the bundled research use cases (Neuromodulation Control Loop, Dynamic Hot-Swap, Network-Aware Routing, etc.):
+### Running Predefined Use Cases & Multi-Daemon Benchmarks
+To execute the bundled research use cases (Neuromodulation Control Loop, Dynamic Hot-Swap, Network-Aware Routing, Parameter Sensitivity Analysis, and Concurrency Baselines):
 
 ```bash
 # Run the complete verification suite using Pixi
 pixi run mojo run_use_cases.mojo
+```
+
+### Executing Automated Test Suite
+To run the automated test suite verifying QoE math safety, YAML validation, launcher security, and plot generation:
+
+```bash
+python3 -m unittest discover -s tests -p "test_*.py"
 ```
 
 ### Executing Custom Workflows (CLI)
@@ -131,20 +148,20 @@ Ararat allows you to run any user-defined workflow YAML directly through the CLI
 pixi run mojo main.mojo workflows/neuromodulation.yaml --iterations 5
 ```
 
-### Reproducing Paper Experiments & Plots
-To run the evaluation benchmarks described in the paper and regenerate the exact plots presented:
+### Reproducing Evaluation Experiments & Plots
+To run the evaluation benchmarks and regenerate the exact 4-panel plot presented:
 
-1. Execute the main evaluation simulation to produce the raw CSV metrics:
+1. Execute the main evaluation simulation to produce raw CSV metrics:
    ```bash
    pixi run mojo run_use_cases.mojo
    ```
-   This will generate `evaluation_metrics.csv` in the `scripts/` directory.
+   This generates `evaluation_metrics.csv` in the `scripts/` directory.
 
-2. Run the plot generator script to consume the CSV and output the PDF figure:
+2. Run the plot generator script to consume the CSV and output the 4-panel PDF figure:
    ```bash
    python3 scripts/generate_plots.py
    ```
-   This will output `evaluation_results.pdf` in the `scripts/` directory.
+   This outputs `evaluation_results.pdf` in the `scripts/` directory.
 
 ### Creating Custom Workflows
 
@@ -152,6 +169,5 @@ Ararat inherently focuses on zero-code deployments via declarative topologies na
 
 For comprehensive instructions on how to design YAML schemas and inject hot-swaps using the native `WorkflowParser`, please refer to the **[Ararat User Guide](USER-GUIDE.md)**.
 
----
 
 

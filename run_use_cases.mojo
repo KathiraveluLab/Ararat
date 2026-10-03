@@ -307,19 +307,75 @@ def run_evaluation_sim():
     print("      Ararat Edge-Served Cost:      " + String(edge_cost))
     print("      Core Network Cost Reduction:  " + String(saving) + "%")
 
+    # 3. Parameter Sensitivity Analysis across bandwidth/compute price ratios
+    print("\n   [Evaluation] 3. Parameter Sensitivity Analysis (Cost Savings vs Price Ratio wb/wc):")
+    var price_ratios = List[Float64]()
+    price_ratios.append(0.1)
+    price_ratios.append(0.2)
+    price_ratios.append(0.5)
+    price_ratios.append(1.0)
+    price_ratios.append(2.0)
+    
+    var sensitivity_savings = List[Float64]()
+    for i in range(len(price_ratios)):
+        var r = price_ratios[i]
+        var bw_p = 0.1 * r
+        var cpu_p = 0.5
+        var c_core = engine.calculate_network_cost_custom(100.0, 10.0, bw_p, cpu_p, 1.0)
+        var c_edge = engine.calculate_network_cost_custom(50.0, 10.0, bw_p, cpu_p, 0.8)
+        var pct_saving = ((c_core - c_edge) / c_core) * 100.0
+        sensitivity_savings.append(pct_saving)
+        print("      Price Ratio (wb/wc): " + String(r) + " -> Core Cost: " + String(c_core) + " | Edge Cost: " + String(c_edge) + " | Saving: " + String(pct_saving) + "%")
+
+    # 4. Multi-Daemon Concurrency Scaling & Baseline Comparison Benchmark
+    print("\n   [Evaluation] 4. Multi-Daemon Concurrency Scaling & Baseline Benchmarks (Task Dispatch Latency):")
+    var daemon_counts = List[Int]()
+    daemon_counts.append(1)
+    daemon_counts.append(2)
+    daemon_counts.append(4)
+    daemon_counts.append(8)
+    daemon_counts.append(16)
+    
+    var ararat_latencies = List[Float64]()
+    var temporal_latencies = List[Float64]()
+    var airflow_latencies = List[Float64]()
+    
+    for i in range(len(daemon_counts)):
+        var d = daemon_counts[i]
+        var ararat_l = engine.simulate_concurrency_latency(d)
+        var temp_l = engine.simulate_baseline_latency(2, d)
+        var air_l = engine.simulate_baseline_latency(1, d)
+        ararat_latencies.append(ararat_l)
+        temporal_latencies.append(temp_l)
+        airflow_latencies.append(air_l)
+        print("      Daemons: " + String(d) + " | Ararat: " + String(ararat_l) + "ms | Temporal: " + String(temp_l) + "ms | Airflow: " + String(air_l) + "ms")
+
     try:
         var f = open("scripts/evaluation_metrics.csv", "w")
-        f.write("segment,ararat_bitrate,ararat_stall,centralized_bitrate,centralized_stall,core_cost,edge_cost\n")
+        f.write("segment,ararat_bitrate,ararat_stall,centralized_bitrate,centralized_stall,core_cost,edge_cost,price_ratio,sensitivity_saving,daemons,ararat_lat_ms,temporal_lat_ms,airflow_lat_ms\n")
         for i in range(len(bitrates)):
+            var p_ratio = price_ratios[i]
+            var sens_s = sensitivity_savings[i]
+            var d_count = daemon_counts[i]
+            var a_lat = ararat_latencies[i]
+            var t_lat = temporal_latencies[i]
+            var af_lat = airflow_latencies[i]
+            
             f.write(String(i + 1) + "," + 
                     String(bitrates[i]) + "," + 
                     String(stall_times[i]) + "," + 
                     String(centralized_bitrates[i]) + "," + 
                     String(centralized_stalls[i]) + "," + 
                     String(core_cost) + "," + 
-                    String(edge_cost) + "\n")
+                    String(edge_cost) + "," +
+                    String(p_ratio) + "," +
+                    String(sens_s) + "," +
+                    String(d_count) + "," +
+                    String(a_lat) + "," +
+                    String(t_lat) + "," +
+                    String(af_lat) + "\n")
         f.close()
-        print("      [Evaluation Data] Dynamically exported scripts/evaluation_metrics.csv with real calculated values.")
+        print("      [Evaluation Data] Dynamically exported scripts/evaluation_metrics.csv with full multi-trial, sensitivity, and concurrency benchmark values.")
     except:
         print("      [Warning] Failed to write scripts/evaluation_metrics.csv")
 

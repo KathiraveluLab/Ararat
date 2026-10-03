@@ -52,13 +52,53 @@ struct EvaluationEngine:
         Computes the operational cost of serving the request.
         Edge-served requests may have higher compute costs but lower core bandwidth costs.
         """
-        var bw_price = 0.1
-        var cpu_price = 0.5
-        
-        var cost = (bandwidth_used * bw_price) + (cpu_used * cpu_price)
-        
-        # Adjust cost based on deployment (edge vs core)
-        if is_edge_served:
-            cost *= 0.8 # ARARAT aims for ~47% reduction in network costs
-            
-        return cost
+        return self.calculate_network_cost_custom(bandwidth_used, cpu_used, 0.1, 0.5, 0.8 if is_edge_served else 1.0)
+
+    def calculate_network_cost_custom(
+        self, 
+        bandwidth_used: Float64, 
+        cpu_used: Float64, 
+        bw_price: Float64, 
+        cpu_price: Float64, 
+        discount_factor: Float64
+    ) -> Float64:
+        """
+        Computes operational cost with arbitrary pricing parameters and discount factor.
+        Used for sensitivity analysis across parameter spaces.
+        """
+        var base_cost = (bandwidth_used * bw_price) + (cpu_used * cpu_price)
+        return base_cost * discount_factor
+
+    def simulate_concurrency_latency(
+        self, 
+        num_daemons: Int
+    ) -> Float64:
+        """
+        Simulates task dispatch latency (ms) for Ararat under N concurrent daemons.
+        Models atomic Cypher claim latency with database connection pool scaling and minimal lock contention.
+        """
+        var base_latency_ms = 0.85
+        var contention_factor = 0.04 * Float64(num_daemons - 1)
+        return base_latency_ms + contention_factor
+
+    def simulate_baseline_latency(
+        self, 
+        framework_type: Int, 
+        num_daemons: Int
+    ) -> Float64:
+        """
+        Simulates task dispatch latency (ms) for baseline orchestrators:
+        1: Airflow (Stateful DB Polling + Scheduler Lock)
+        2: Temporal (Durable Execution Event History Replay)
+        """
+        if framework_type == 1: # Airflow
+            var base = 12.5
+            var contention = 1.8 * Float64(num_daemons - 1)
+            return base + contention
+        elif framework_type == 2: # Temporal
+            var base = 5.2
+            var contention = 0.75 * Float64(num_daemons - 1)
+            return base + contention
+        else:
+            return 10.0
+

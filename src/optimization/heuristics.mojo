@@ -19,19 +19,39 @@ struct FineGrainedHeuristic:
     ) -> Int:
         """
         Finds the optimal Edge node for a given service request.
-        Minimal implementation focusing on resource availability.
+        Incorporates available CPU, memory, link bandwidth, and interconnecting link latency.
         """
         var optimal_node_id: Int = -1
-        var highest_resource_availability: Float64 = 0.0
+        var highest_score: Float64 = -1e9
         
         for i in range(len(nodes)):
             var node = nodes[i].copy()
             if node.node_type != "SDN" and node.node_type != "CLIENT":
                 if node.available_cpu >= service.cpu_required and node.available_memory >= service.memory_required:
-                    # Heuristic score: Combined available resources
-                    var current_score = node.available_cpu + node.available_memory
-                    if current_score > highest_resource_availability:
-                        highest_resource_availability = current_score
+                    # Calculate incident link characteristics (average latency & total bandwidth)
+                    var incident_link_count: Int = 0
+                    var total_link_latency: Float64 = 0.0
+                    var total_link_bandwidth: Float64 = 0.0
+                    
+                    for j in range(len(links)):
+                        var link = links[j].copy()
+                        if link.source_id == node.id or link.dest_id == node.id:
+                            incident_link_count += 1
+                            total_link_latency += link.latency
+                            total_link_bandwidth += link.bandwidth
+                    
+                    var avg_latency: Float64 = 1.0
+                    if incident_link_count > 0:
+                        avg_latency = total_link_latency / Float64(incident_link_count)
+                        
+                    # Combined resource availability penalty-adjusted by link latency
+                    var resource_capacity = node.available_cpu + (node.available_memory / 10.0)
+                    var latency_penalty = 0.5 * avg_latency
+                    var bandwidth_bonus = 0.01 * total_link_bandwidth
+                    
+                    var current_score = resource_capacity - latency_penalty + bandwidth_bonus
+                    if current_score > highest_score:
+                        highest_score = current_score
                         optimal_node_id = node.id
         
         return optimal_node_id
